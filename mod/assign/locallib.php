@@ -913,6 +913,34 @@ class assign {
     }
 
     /**
+     * Updates the assign properties with override information by group for a user that can view grades.
+     *
+     * Algorithm:  If the user can view grades, current group should depend on
+     *   what user select on the page, if there are group-specific overrides, return the most
+     *   lenient combination of them.  If neither applies, leave the assign setting unchanged.
+     */
+    public function update_effective_due_date_by_group() {
+        global $DB;
+
+        if ($this->can_view_grades()) {
+            $currentgroup = groups_get_activity_group($this->get_course_module(), true);
+            $sql = "SELECT * FROM {assign_overrides}
+                    WHERE groupid = ? AND assignid = ? ORDER BY sortorder ASC";
+            $params[] = $currentgroup;
+            $params[] = $this->get_instance()->id;
+            $groupoverride = $DB->get_record_sql($sql, $params, IGNORE_MULTIPLE);
+
+            $keys = array('duedate', 'cutoffdate', 'allowsubmissionsfromdate');
+
+            foreach ($keys as $key) {
+                if (isset($groupoverride->{$key})) {
+                    $this->get_instance()->{$key} = $groupoverride->{$key};
+                }
+            }
+        }
+    }
+
+    /**
      * Returns whether an assign has any overrides.
      *
      * @return true if any, false if not

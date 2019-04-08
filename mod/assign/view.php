@@ -49,6 +49,7 @@ $assign->set_module_viewed();
 
 // Apply overrides.
 $assign->update_effective_access($USER->id);
+$assign->update_effective_due_date_by_group();
 
 // Get the assign class to
 // render the page.
