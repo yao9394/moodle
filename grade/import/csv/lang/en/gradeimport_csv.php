@@ -26,3 +26,4 @@
 $string['csv:view'] = 'Import grades from CSV';
 $string['pluginname'] = 'CSV file';
 $string['privacy:metadata'] = 'The import grades from CSV plugin does not store any personal data.';
+$string['tablabel'] = 'csv-file';

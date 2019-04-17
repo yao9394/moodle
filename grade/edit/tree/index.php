@@ -235,6 +235,7 @@ if (grade_regrade_final_grades_if_required($course, $grade_edit_tree_index_check
 }
 
 print_grade_page_head($courseid, 'settings', 'setup', get_string('gradebooksetup', 'grades'));
+echo  '<div tabindex="0" role="tabpanel" id="'.s(get_string('gradebooksetuptablabel', 'grades')).'-tab" aria-labelledby="'.s(get_string('gradebooksetuptablabel', 'grades')).'">';
 
 // Print Table of categories and items
 echo $OUTPUT->box_start('gradetreebox generalbox');
@@ -296,6 +297,7 @@ $PAGE->requires->yui_module('moodle-core-formchangechecker',
 );
 $PAGE->requires->string_for_js('changesmadereallygoaway', 'moodle');
 
+echo '</div>';
 echo $OUTPUT->footer();
 die;
 

@@ -93,6 +93,7 @@ if (!$edit) {
     }
 
     print_grade_page_head($COURSE->id, 'letter', 'view', get_string('gradeletters', 'grades'));
+    echo '<div tabindex="0" role="tabpanel" id="'.s(get_string('letterviewtablabel', 'grades')).'-tab" aria-labelledby="'.s(get_string('letterviewtablabel', 'grades')).'">';
 
     if (!empty($override)) {
         echo $OUTPUT->notification(get_string('gradeletteroverridden', 'grades'), 'notifymessage');
@@ -237,8 +238,10 @@ if (!$edit) {
     }
 
     print_grade_page_head($COURSE->id, 'letter', 'edit', get_string('editgradeletters', 'grades'));
+    echo '<div tabindex="0" role="tabpanel" id="'.s(get_string('letteredittablabel', 'grades')).'-tab" aria-labelledby="'.s(get_string('letteredittablabel', 'grades')).'">';
 
     $mform->display();
 }
 
+echo '</div>';
 echo $OUTPUT->footer();

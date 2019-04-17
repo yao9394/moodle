@@ -135,6 +135,7 @@ if ($itemtype == 'user') {
 } else {
     print_grade_page_head($course->id, 'report', 'singleview', $reportname);
 }
+echo '<div tabindex="0" role="tabpanel" id="'.s(get_string('tablabel', 'gradereport_singleview')).'-tab" aria-labelledby="'.s(get_string('tablabel', 'gradereport_singleview')).'">';
 
 $graderrightnav = $graderleftnav = null;
 
@@ -205,5 +206,7 @@ $event = \gradereport_singleview\event\grade_report_viewed::create(
     )
 );
 $event->trigger();
+
+echo '</div>';
 
 echo $OUTPUT->footer();
