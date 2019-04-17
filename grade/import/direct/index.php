@@ -49,6 +49,7 @@ $currentgroup = groups_get_course_group($course);
 
 print_grade_page_head($course->id, 'import', 'direct', get_string('pluginname', 'gradeimport_direct'), false, false, true,
         'userdata', 'gradeimport_direct');
+echo '<div tabindex="0" role="tabpanel" id="'.s(get_string('tablabel', 'gradeimport_direct')).'-tab" aria-labelledby="'.s(get_string('tablabel', 'gradeimport_direct')).'">';
 
 $renderer = $PAGE->get_renderer('gradeimport_csv');
 

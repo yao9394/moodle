@@ -167,6 +167,7 @@ if ($scales = grade_scale::fetch_all_global()) {
 
 if ($courseid) {
     print_grade_page_head($courseid, 'scale', 'scale', get_string('coursescales', 'grades'));
+    echo '<div tabindex="0" role="tabpanel" id="'.s(get_string('scalestablabel', 'grades')).'-tab" aria-labelledby="'.s(get_string('scalestablabel', 'grades')).'">';
 }
 
 echo $OUTPUT->heading($strcustomscales, 3, 'main');
@@ -176,4 +177,7 @@ echo html_writer::table($table2);
 echo $OUTPUT->container_start('buttons');
 echo $OUTPUT->single_button(new moodle_url('edit.php', array('courseid'=>$courseid)), $srtcreatenewscale);
 echo $OUTPUT->container_end();
+if ($courseid) {
+    echo '</div>';
+}
 echo $OUTPUT->footer();

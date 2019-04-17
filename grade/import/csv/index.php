@@ -53,6 +53,7 @@ $currentgroup = groups_get_course_group($course);
 
 print_grade_page_head($course->id, 'import', 'csv', get_string('importcsv', 'grades'), false, false, true,
         'importcsv', 'grades');
+echo '<div tabindex="0" role="tabpanel" id="'.s(get_string('tablabel', 'gradeimport_csv')).'-tab" aria-labelledby="'.s(get_string('tablabel', 'gradeimport_csv')).'">';
 
 $renderer = $PAGE->get_renderer('gradeimport_csv');
 
@@ -122,9 +123,11 @@ if ($formdata = $mform2->get_data()) {
         $errors[] = get_string('importfailed', 'grades');
         echo $renderer->errors($errors);
     }
+    echo '</div>';
     echo $OUTPUT->footer();
 } else {
     // If data hasn't been submitted then display the data mapping form.
     $mform2->display();
+    echo '</div>';
     echo $OUTPUT->footer();
 }

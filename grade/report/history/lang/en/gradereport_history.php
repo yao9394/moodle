@@ -57,3 +57,4 @@ $string['selectedusers'] = 'Selected users';
 $string['source'] = 'Source';
 $string['useractivitygrade'] = '{$a} grade';
 $string['useractivityfeedback'] = '{$a} feedback';
+$string['tablabel'] = 'grade-history';

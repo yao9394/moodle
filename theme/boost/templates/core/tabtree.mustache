@@ -32,10 +32,10 @@
         }]
     }
 }}
-<ul class="nav nav-tabs mb-3">
+<ul class="nav nav-tabs mb-3" role="tablist">
   {{#tabs}}
     <li class="nav-item">
-      <a class="nav-link{{#active}} active{{/active}}{{#inactive}} disabled{{/inactive}}" {{#link}}href="{{{link}}}"{{/link}} title="{{title}}">{{{text}}}</a>
+      <a class="nav-link{{#active}} active{{/active}}{{#inactive}} disabled{{/inactive}}" aria-selected="{{#active}}true{{/active}}{{^active}}false{{/active}}" {{#link}}href="{{{link}}}"{{/link}} title="{{title}}" role="tab" aria-contorls="{{label}}-tab" id="{{label}}">{{{text}}}</a>
     </li>
   {{/tabs}}
 </ul>

@@ -29,3 +29,4 @@ $string['privacy:metadata'] = 'The Plain text file grade export plugin does not 
 $string['timeexported'] = 'Last downloaded from this course';
 $string['txt:publish'] = 'Publish TXT grade export';
 $string['txt:view'] = 'Use text grade export';
+$string['tablabel'] = 'plain-text-file';

@@ -27,3 +27,4 @@ $string['gradesoverview'] = 'Grades overview';
 $string['pluginname'] = 'Overview report';
 $string['privacy:metadata'] = 'The Grade overview report only shows data stored in other locations.';
 $string['overview:view'] = 'View the overview report';
+$string['tablabel'] = 'overview-report';

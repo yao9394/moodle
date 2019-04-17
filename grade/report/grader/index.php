@@ -134,6 +134,7 @@ grade_regrade_final_grades_if_required($course);
 
 // Print header
 print_grade_page_head($COURSE->id, 'report', 'grader', $reportname, false, $buttons);
+echo  '<div tabindex="0" role="tabpanel" id="'.s(get_string('tablabel', 'gradereport_grader')).'-tab" aria-labelledby="'.s(get_string('tablabel', 'gradereport_grader')).'">';
 
 //Initialise the grader report object that produces the table
 //the class grade_report_grader_ajax was removed as part of MDL-21562
@@ -202,6 +203,7 @@ if ($USER->gradeediting[$course->id] && ($report->get_pref('showquickfeedback') 
 } else {
     echo $reporthtml;
 }
+echo '</div>';
 
 // prints paging bar at bottom for large pages
 if (!empty($studentsperpage) && $studentsperpage >= 20) {
