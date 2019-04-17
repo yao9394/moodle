@@ -81,6 +81,7 @@ if ($mform->is_cancelled()) {
 }
 
 print_grade_page_head($courseid, 'settings', 'coursesettings', get_string('coursegradesettings', 'grades'));
+echo '<div tabindex="0" role="tabpanel" id="'.s(get_string('coursegradesettingstablabel', 'grades')).'-tab" aria-labelledby="'.s(get_string('coursegradesettingstablabel', 'grades')).'">';
 
 // The settings could have been changed due to a notice shown in print_grade_page_head, we need to refresh them.
 $settings = grade_get_settings($course->id);
@@ -92,6 +93,7 @@ echo $OUTPUT->box_end();
 
 $mform->display();
 
+echo '</div>';
 echo $OUTPUT->footer();
 
 

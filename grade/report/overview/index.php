@@ -112,6 +112,7 @@ if (has_capability('moodle/grade:viewall', $context) && $courseid != SITEID) {
     if (empty($userid)) {
         // Add tabs
         print_grade_page_head($courseid, 'report', 'overview');
+        echo '<div tabindex="0" role="tabpanel" id="'.s(get_string('tablabel', 'gradereport_overview')).'-tab" aria-labelledby="'.s(get_string('tablabel', 'gradereport_overview')).'">';
 
         groups_print_course_menu($course, $gpr->get_return_url('index.php?id='.$courseid, array('userid'=>0)));
 
@@ -120,11 +121,13 @@ if (has_capability('moodle/grade:viewall', $context) && $courseid != SITEID) {
             echo $renderer->graded_users_selector('overview', $course, $userid, $currentgroup, false);
         }
         // do not list all users
+        echo '</div>';
 
     } else { // Only show one user's report
         $report = new grade_report_overview($userid, $gpr, $context);
         print_grade_page_head($courseid, 'report', 'overview', get_string('pluginname', 'gradereport_overview') .
                 ' - ' . fullname($report->user), false, false, true, null, null, $report->user);
+        echo '<div tabindex="0" role="tabpanel" id="'.s(get_string('tablabel', 'gradereport_overview')).'-tab" aria-labelledby="'.s(get_string('tablabel', 'gradereport_overview')).'">';
         groups_print_course_menu($course, $gpr->get_return_url('index.php?id='.$courseid, array('userid'=>0)));
 
         if ($user_selector) {
@@ -139,6 +142,7 @@ if (has_capability('moodle/grade:viewall', $context) && $courseid != SITEID) {
                 echo '<br />'.$report->print_table(true);
             }
         }
+        echo '</div>';
     }
 } else { // Non-admins and users viewing from the site context can just see their own report.
 
@@ -171,9 +175,11 @@ if (has_capability('moodle/grade:viewall', $context) && $courseid != SITEID) {
         } else { // We have a course context. We must be navigating from the gradebook.
             print_grade_page_head($courseid, 'report', 'overview', get_string('pluginname', 'gradereport_overview')
                     . ' - ' . fullname($report->user));
+                    echo '<div tabindex="0" role="tabpanel" id="'.s(get_string('tablabel', 'gradereport_overview')).'-tab" aria-labelledby="'.s(get_string('tablabel', 'gradereport_overview')).'">';
             if ($report->fill_table()) {
                 echo '<br />' . $report->print_table(true);
             }
+            echo '</div>';
         }
     } else {
         $PAGE->set_pagelayout('standard');

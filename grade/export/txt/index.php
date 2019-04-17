@@ -34,6 +34,8 @@ require_capability('moodle/grade:export', $context);
 require_capability('gradeexport/txt:view', $context);
 
 print_grade_page_head($COURSE->id, 'export', 'txt', get_string('exportto', 'grades') . ' ' . get_string('pluginname', 'gradeexport_txt'));
+echo '<div tabindex="0" role="tabpanel" id="' . s(get_string('tablabel', 'gradeexport_txt')) . '-tab" aria-labelledby="' . s(get_string('tablabel', 'gradeexport_txt')) . '">';
+
 export_verify_grades($COURSE->id);
 
 if (!empty($CFG->gradepublishing)) {
@@ -66,5 +68,6 @@ echo '<div class="clearer"></div>';
 
 $mform->display();
 
+echo '</div>';
 echo $OUTPUT->footer();
 

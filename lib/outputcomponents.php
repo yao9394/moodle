@@ -3914,6 +3914,7 @@ class tabobject implements renderable, templatable {
             'inactive' => !$active && $this->inactive,
             'active' => $active,
             'level' => $this->level,
+            'label' => preg_replace('/^-+|-+$/', '', strtolower(preg_replace('/[^a-zA-Z0-9]+/', '-', $this->title))),
         ];
     }
 

@@ -29,3 +29,4 @@ $string['privacy:metadata'] = 'The Excel spreadsheet grade export plugin does no
 $string['timeexported'] = 'Last downloaded from this course';
 $string['xls:publish'] = 'Publish XLS grade export';
 $string['xls:view'] = 'Use Excel grade export';
+$string['tablabel'] = 'excel-spreadsheet';

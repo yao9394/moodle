@@ -70,6 +70,7 @@ if ($mform->is_cancelled()){
 }
 
 print_grade_page_head($courseid, 'settings', 'grader', get_string('preferences', 'gradereport_grader'));
+echo '<div tabindex="0" role="tabpanel" id="'.s(get_string('preferencetablabel', 'gradereport_grader')).'-tab" aria-labelledby="'.s(get_string('preferencetablabel', 'gradereport_grader')).'">';
 
 // If USER has admin capability, print a link to the site config page for this report
 if (has_capability('moodle/site:config', $systemcontext)) {
@@ -83,5 +84,6 @@ echo $OUTPUT->box_start();
 $mform->display();
 echo $OUTPUT->box_end();
 
+echo '</div>';
 echo $OUTPUT->footer();
 

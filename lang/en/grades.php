@@ -861,4 +861,8 @@ $string['writinggradebookinfo'] = 'Writing gradebook settings';
 $string['xml'] = 'XML';
 $string['yes'] = 'Yes';
 $string['yourgrade'] = 'Your grade';
-
+$string['gradebooksetuptablabel'] = 'gradebook-setup';
+$string['coursegradesettingstablabel'] = 'course-grade-settings';
+$string['scalestablabel'] = 'scales';
+$string['letterviewtablabel'] = 'view';
+$string['letteredittablabel'] = 'edit';

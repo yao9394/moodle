@@ -107,7 +107,9 @@ if ($table->is_downloading()) {
 
 // Print header.
 print_grade_page_head($COURSE->id, 'report', 'history', get_string('pluginname', 'gradereport_history'), false, '');
+echo '<div tabindex="0" role="tabpanel" id="'.s(get_string('tablabel', 'gradereport_history')).'-tab" aria-labelledby="'.s(get_string('tablabel', 'gradereport_history')).'">';
 $mform->display();
+echo '</div>';
 
 if ($showreport) {
     // Only display report after form has been submitted.

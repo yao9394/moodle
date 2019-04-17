@@ -59,3 +59,5 @@ $string['summarygrader'] = 'A table with the names of students in the first colu
 $string['useractivitygrade'] = '{$a} grade';
 $string['useractivityfeedback'] = '{$a} feedback';
 $string['overriddengrade'] = 'Overridden grade';
+$string['tablabel'] = 'grader-report';
+$string['preferencetablabel'] = 'preference-grader-report';
