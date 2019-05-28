@@ -5362,7 +5362,7 @@ class assign {
                                                   $this->is_any_submission_plugin_enabled(),
                                                   $this->count_submissions_with_status($submitted, $activitygroup),
                                                   $instance->cutoffdate,
-                                                  $instance->duedate,
+                                                  $this->get_duedate($activitygroup),
                                                   $this->get_course_module()->id,
                                                   $this->count_submissions_need_grading($activitygroup),
                                                   $instance->teamsubmission,
@@ -5377,7 +5377,7 @@ class assign {
                                                   $this->is_any_submission_plugin_enabled(),
                                                   $this->count_submissions_with_status($submitted, $activitygroup),
                                                   $instance->cutoffdate,
-                                                  $instance->duedate,
+                                                  $this->get_duedate($activitygroup),
                                                   $this->get_course_module()->id,
                                                   $this->count_submissions_need_grading($activitygroup),
                                                   $instance->teamsubmission,
@@ -5387,6 +5387,34 @@ class assign {
         }
 
         return $summary;
+    }
+
+    /**
+     * Return group override duedate.
+     *
+     * @param int $activitygroup Activity active group
+     * @return int $duedate
+     */
+    public function  get_duedate($activitygroup = null) {
+        global $DB;
+
+        $instance = $this->get_instance();
+
+        if ($activitygroup === null) {
+            $activitygroup = groups_get_activity_group($this->get_course_module());
+        }
+
+        if ($this->can_view_grades()) {
+            $sql = "SELECT duedate FROM {assign_overrides}
+                    WHERE groupid = ? AND assignid = ? ORDER BY sortorder ASC";
+            $params[] = $activitygroup;
+            $params[] = $this->get_instance()->id;
+            $groupoverride = $DB->get_record_sql($sql, $params, IGNORE_MULTIPLE);
+            if (!empty($groupoverride->duedate)) {
+                return $groupoverride->duedate;
+            }
+        }
+        return $instance->duedate;
     }
 
     /**
