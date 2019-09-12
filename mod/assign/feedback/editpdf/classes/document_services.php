@@ -553,7 +553,9 @@ EOD;
             }
         }
 
-        if (empty($pages)) {
+        $combineddocument = self::get_combined_document_for_attempt($assignment, $userid, $attemptnumber);
+        // This should take the case that some pages are ready some are not into account.
+        if (empty($pages) || count($pages) != $combineddocument->get_page_count()) {
             if ($readonly) {
                 // This should never happen, there should be a version of the pages available
                 // whenever we are requesting the readonly version.
