@@ -81,8 +81,7 @@ if (!$attemptobj->is_preview_user()) {
 
 // If the attempt is already closed, send them to the review page.
 if ($attemptobj->is_finished()) {
-    throw new moodle_quiz_exception($attemptobj->get_quizobj(),
-            'attemptalreadyclosed', null, $attemptobj->review_url());
+    redirect($attemptobj->review_url(), get_string('attemptalreadyclosed', 'quiz'));
 }
 
 // Process the attempt, getting the new status for the attempt.
