@@ -44,7 +44,7 @@ class completion_daily_task extends scheduled_task {
      * Throw exceptions on errors (the job will be retried).
      */
     public function execute() {
-        global $CFG, $DB;
+        global $CFG;
 
         if ($CFG->enablecompletion) {
             require_once($CFG->libdir . "/completionlib.php");
@@ -65,48 +65,48 @@ class completion_daily_task extends scheduled_task {
      * multiple enrolment plugins active in a course, hence the possibility of multiple records for each
      * couse/user in the results.
      *
-     * @return  bool
+     * @return  void
      */
-    public function update_completions() {
+    private function update_completions() {
         global $CFG, $DB;
         $sqlroles = '';
-            if (!empty($CFG->gradebookroles)) {
-                $sqlroles = ' AND ra.roleid IN (' . $CFG->gradebookroles.')';
-            }
-        $sql = "INSERT INTO {course_completions}
-                            (course, userid, timeenrolled, timestarted, reaggregate)
-                SELECT c.id AS course, ue.userid AS userid,
-                    CASE
-                    WHEN MIN(ue.timestart) <> 0
-                    THEN MIN(ue.timestart)
-                    ELSE :timestarted
-                    END,
-                    0, :reaggregate
-                    FROM {user} u
-                INNER JOIN {user_enrolments} ue ON ue.userid = u.id
-                INNER JOIN {enrol} e ON e.id = ue.enrolid
-                INNER JOIN {course} c ON c.id = e.courseid
-                INNER JOIN {context} con ON con.contextlevel = :context AND con.instanceid = c.id
-                INNER JOIN {role_assignments} ra ON ra.userid = u.id AND ra.contextid = con.id
-                LEFT JOIN {course_completions} crc ON crc.course = c.id AND crc.userid = ue.userid
-                    WHERE c.enablecompletion = 1
-                    AND crc.id IS NULL
-                    AND ue.status = :uestatus
-                    AND e.status = :estatus
-                    AND ue.timestart < :timestart
-                    AND (ue.timeend > :timeend OR ue.timeend = 0)
-                    $sqlroles
-                GROUP BY c.id, ue.userid";
+        if (!empty($CFG->gradebookroles)) {
+            $sqlroles = ' AND ra.roleid IN (' . $CFG->gradebookroles.')';
+        }
+
+        $sql = "SELECT c.id AS course, ue.userid AS userid
+                  FROM {user_enrolments} ue
+                  JOIN {enrol} e ON e.id = ue.enrolid
+                  JOIN {course} c ON c.id = e.courseid
+                  JOIN {context} con ON con.contextlevel = :context AND con.instanceid = c.id
+                  JOIN {role_assignments} ra ON ra.userid = ue.userid AND ra.contextid = con.id
+             LEFT JOIN {course_completions} crc ON crc.course = c.id AND crc.userid = ue.userid
+                 WHERE c.enablecompletion = :enablecompletion
+                       AND crc.id IS NULL
+                       AND ue.status = :uestatus
+                       AND e.status = :estatus
+                       AND ue.timestart < :timestart
+                       AND (ue.timeend > :timeend OR ue.timeend = 0)
+                        $sqlroles
+              GROUP BY c.id, ue.userid";
         $now = time();
-        $params = array(
+        $params = [
             'timestarted' => $now,
-            'reaggregate' => $now,
+            'enablecompletion' => 1,
             'uestatus' => ENROL_USER_ACTIVE,
             'estatus' => ENROL_INSTANCE_ENABLED,
             'timestart' => $now,
             'timeend' => $now,
             'context' => CONTEXT_COURSE
-        );
-        $DB->execute($sql, $params, true);
+        ];
+        $rs = $DB->get_recordset_sql($sql, $params);
+
+        foreach ($rs as $cc) {
+            $ccompletion = new \completion_completion(['userid' => $cc->userid, 'course' => $cc->course]);
+            $ccompletion->reaggregate = $now;
+            $ccompletion->mark_enrolled();
+        }
+
+        $rs->close();
     }
 }

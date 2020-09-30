@@ -106,11 +106,9 @@ class completion_completion extends data_object {
 
         if ($this->timeenrolled === null) {
 
-            if ($timeenrolled === null) {
-                $timeenrolled = time();
+            if ($timeenrolled !== null) {
+                $this->timeenrolled = $timeenrolled;
             }
-
-            $this->timeenrolled = $timeenrolled;
         }
 
         return $this->_save();
@@ -218,7 +216,6 @@ class completion_completion extends data_object {
             $this->timeenrolled = 0;
         }
 
-        $result = false;
         // Save record
         if ($this->id) {
             $result = $this->update();
@@ -233,22 +230,22 @@ class completion_completion extends data_object {
                           FROM {user_enrolments} ue
                           JOIN {enrol} e ON (e.id = ue.enrolid AND e.courseid = :courseid)
                          WHERE ue.userid = :userid
-                           AND ue.status = :active
-                           AND e.status = :enabled
-                           AND ( ue.timeend = 0
-                                 OR ue.timeend > :now
-                               )
-                           AND ue.timeend < :now2
+                               AND ue.status = :active
+                               AND e.status = :enabled
+                               AND ( ue.timeend = 0
+                                     OR ue.timeend > :now
+                                    )
+                               AND ue.timestart < :now2
                       ORDER BY ue.timestart ASC";
 
-                $params = array(
+                $params = [
                     'enabled'   => ENROL_INSTANCE_ENABLED,
                     'active'    => ENROL_USER_ACTIVE,
                     'userid'    => $this->userid,
                     'courseid'  => $this->course,
                     'now'       => time(),
                     'now2'      => time()
-                );
+                ];
 
                 if ($enrolments = $DB->get_record_sql($sql, $params, IGNORE_MULTIPLE)) {
                     $this->timeenrolled = $enrolments->timestart;
