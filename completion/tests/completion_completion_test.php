@@ -25,9 +25,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-global $CFG;
-require_once("{$CFG->dirroot}/completion/tests/lib.php");
-
 /**
  * Course completion test
  *
@@ -37,7 +34,7 @@ require_once("{$CFG->dirroot}/completion/tests/lib.php");
  * @author Sagar Ghimire <sagarghimire@catalyst-au.net>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class completion_completion_testcase extends completion_testcase {
+class completion_completion_testcase extends \advanced_testcase {
 
     /**
      * Things this test needs to be checking for:
@@ -51,39 +48,40 @@ class completion_completion_testcase extends completion_testcase {
      * - Ignore courses with completion disabled
      */
     public function test_completion_completion_save() {
-        global $CFG, $DB;
+        global $DB;
 
-        $this->_create_complex_testdata();
+        $this->resetAfterTest();
+        $generator = $this->getDataGenerator()->get_plugin_generator('core_completion');
+        $generator->_create_complex_testdata();
 
-        $course1 = $this->_testcourses[1];
-        $course2 = $this->_testcourses[2];
-        $course3 = $this->_testcourses[3];
+        $course1 = $generator->get_test_courses()[1];
+        $course2 = $generator->get_test_courses()[2];
+        $course3 = $generator->get_test_courses()[3];
 
-        $user1 = $this->_testusers[1];
-        $user2 = $this->_testusers[2];
-        $user3 = $this->_testusers[3];
-        $user4 = $this->_testusers[4];
+        $user1 = $generator->get_test_users()[1];
+        $user2 = $generator->get_test_users()[2];
+        $user3 = $generator->get_test_users()[3];
+        $user4 = $generator->get_test_users()[4];
 
-        $now = $this->_testdates['now'];
-        $past = $this->_testdates['past'];
-        $future = $this->_testdates['future'];
+        $now = $generator->get_test_dates()['now'];
+        $past = $generator->get_test_dates()['past'];
 
         // Run functionality to test.
-        $completions = array(
+        $completions = [
             $course1->id => array(
                 $user1->id, $user2->id, $user3->id, $user4->id
             ),
             $course2->id => array(
                 $user1->id, $user2->id, $user3->id, $user4->id
             )
-        );
+        ];
 
         foreach ($completions as $course => $users) {
             foreach ($users as $user) {
-                $params = array(
+                $params = [
                     'userid' => $user,
                     'course' => $course
-                );
+                ];
                 $completion = new completion_completion($params, true);
                 $completion->mark_inprogress();
             }
@@ -92,14 +90,13 @@ class completion_completion_testcase extends completion_testcase {
         // Load all records for these courses in course_completions.
         // Return results indexed by userid.
         // (which will not hide duplicates due to their being a unique index on that and the course columns).
-        $cc1 = $DB->get_records('course_completions', array('course' => $course1->id), '', 'userid, *');
-        $cc2 = $DB->get_records('course_completions', array('course' => $course2->id), '', 'userid, *');
-        $cc3 = $DB->get_records('course_completions', array('course' => $course3->id), '', 'userid, *');
+        $cc1 = $DB->get_records('course_completions', ['course' => $course1->id], '', 'userid,timeenrolled');
+        $cc2 = $DB->get_records('course_completions', ['course' => $course2->id], '', 'userid,timeenrolled');
 
         // Test results.
         // Check correct number of records.
-        $this->assertEquals(4, $DB->count_records('course_completions', array('course' => $course1->id)));
-        $this->assertEquals(4, $DB->count_records('course_completions', array('course' => $course2->id)));
+        $this->assertEquals(4, $DB->count_records('course_completions', ['course' => $course1->id]));
+        $this->assertEquals(4, $DB->count_records('course_completions', ['course' => $course2->id]));
 
         // All users should be mark started in course1.
         $this->assertEquals($past - 2, $cc1[$user2->id]->timeenrolled);
@@ -124,6 +121,6 @@ class completion_completion_testcase extends completion_testcase {
         $this->assertEquals($past - 50,   $cc2[$user4->id]->timeenrolled);
 
         // Check no records in course with completion disabled.
-        $this->assertEquals(0, $DB->count_records('course_completions', array('course' => $course3->id)));
+        $this->assertEquals(0, $DB->count_records('course_completions', ['course' => $course3->id]));
     }
 }
