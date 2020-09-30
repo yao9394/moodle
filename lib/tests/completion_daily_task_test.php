@@ -24,8 +24,6 @@
 
 namespace core\task;
 
-use advanced_testcase;
-
 /**
  * Class containing unit tests for the daily completion cron task.
  *
@@ -33,10 +31,10 @@ use advanced_testcase;
  * @copyright 2020 Jun Pataleta
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class core_completion_cron_task_testcase extends advanced_testcase {
+class core_completion_cron_task_testcase extends \advanced_testcase {
 
     /**
-     * Test calendar cron task with a broken subscription URL.
+     * Test completion daily cron task.
      */
     public function test_completion_daily_cron() {
         global $DB;
@@ -46,55 +44,23 @@ class core_completion_cron_task_testcase extends advanced_testcase {
         set_config('enablecompletion', 1);
         set_config('enrol_plugins_enabled', 'self,manual');
 
-        $generator = $this->getDataGenerator();
+        $generator = $this->getDataGenerator()->get_plugin_generator('core_completion');
+        $generator->_create_complex_testdata();
+        $c1 = $generator->get_test_courses()[1];
+        $c2 = $generator->get_test_courses()[2];
+        $c3 = $generator->get_test_courses()[3];
 
-        $now = time();
-        $lastweek = $now - WEEKSECS;
-        $yesterday = $now - DAYSECS;
-        $tomorrow = $now + DAYSECS;
+        $user1 = $generator->get_test_users()[1];
+        $user2 = $generator->get_test_users()[2];
+        $user3 = $generator->get_test_users()[3];
+        $user4 = $generator->get_test_users()[4];
+        $t1 = $generator->get_test_users()[5];
+        $t2 = $generator->get_test_users()[6];
 
-        // Course with completion enabled and has already started.
-        $c1 = $generator->create_course(['enablecompletion' => 1, 'startdate' => $lastweek]);
-        // Course with completion enabled but hasn't started yet.
-        $c2 = $generator->create_course(['enablecompletion' => 1, 'startdate' => $tomorrow]);
-        // Completion not enabled.
-        $c3 = $generator->create_course();
+        $now = $generator->get_test_dates()['now'];
+        $past = $generator->get_test_dates()['past'];
 
-        // Create users.
-        $t1 = $generator->create_user(['username' => 't1']);
-        $t2 = $generator->create_user(['username' => 't2']);
-        $s1 = $generator->create_user(['username' => 's1']);
-        $s2 = $generator->create_user(['username' => 's2']);
-
-        // Enrol s1 by self and manual methods to c1.
-        $generator->enrol_user($s1->id, $c1->id, 'student', 'self', $lastweek);
-        $generator->enrol_user($s1->id, $c1->id, 'student', 'manual', $yesterday);
-
-        // Enrol s1 by self and manual methods to c2.
-        $generator->enrol_user($s1->id, $c2->id, 'student', 'self');
-        $generator->enrol_user($s1->id, $c2->id, 'student', 'manual', $tomorrow);
-
-        // Enrol s1 by self and manual methods to c3.
-        $generator->enrol_user($s1->id, $c3->id, 'student', 'self', $lastweek);
-        $generator->enrol_user($s1->id, $c3->id, 'student');
-
-        // Enrol the rest.
-        foreach ([$c1, $c2, $c3] as $course) {
-            // Enrol s2 by manual and self enrol methods.
-            $generator->enrol_user($s2->id, $course->id, 'student', 'self');
-            $generator->enrol_user($s2->id, $course->id, 'student', 'manual', $course->startdate);
-
-            // Enrol t1 as teacher to these courses.
-            $generator->enrol_user($t1->id, $course->id, 'editingteacher', 'manual', $course->startdate);
-            $generator->enrol_user($t1->id, $course->id, 'editingteacher', 'manual', $course->startdate);
-
-            // Enrol t2 as a non-editing teacher to these courses.
-            $generator->enrol_user($t1->id, $course->id, 'teacher', 'manual', $course->startdate);
-            $generator->enrol_user($t1->id, $course->id, 'teacher', 'manual', $course->startdate);
-        }
-
-        // The course completion table should be empty prior to running the task.
-        $this->assertEquals(0, $DB->count_records('course_completions'));
+        $this->assertEquals(1, $DB->count_records('course_completions'));
 
         // Run the daily completion task.
         ob_start();
@@ -102,22 +68,40 @@ class core_completion_cron_task_testcase extends advanced_testcase {
         $task->execute();
         ob_end_clean();
 
-        // Confirm there are no completion records for teachers nor for courses that haven't started yet or without completion.
+        // Confirm there are no completion records for teachers nor for courses without completion enabled.
         list($tsql, $tparams) = $DB->get_in_or_equal([$t1->id, $t2->id], SQL_PARAMS_NAMED);
-        list($csql, $cparams) = $DB->get_in_or_equal([$c2->id, $c3->id], SQL_PARAMS_NAMED);
-        $select = "userid $tsql OR course $csql";
+        list($csql, $cparams) = $DB->get_in_or_equal([$c1->id, $c2->id], SQL_PARAMS_NAMED);
+        $select = "userid $tsql AND course $csql";
         $params = array_merge($tparams, $cparams);
         $this->assertEmpty($DB->get_records_select('course_completions', $select, $params));
 
-        // We should have 2 completion records for both s1 and s2 in course c1.
-        $this->assertCount(2, $DB->get_records('course_completions'));
+        // Load all records for these courses in course_completions.
+        // Return results indexed by userid.
+        // (which will not hide duplicates due to their being a unique index on that and the course columns).
+        $cc1 = $DB->get_records('course_completions', ['course' => $c1->id], '', 'userid,timeenrolled');
+        $cc2 = $DB->get_records('course_completions', ['course' => $c2->id], '', 'userid,timeenrolled');
 
         // Get s1's completion record from c1.
-        $s1c1 = $DB->get_record('course_completions', ['userid' => $s1->id, 'course' => $c1->id]);
-        $this->assertEquals(userdate($now), userdate($s1c1->timeenrolled));
+        $s1c1 = $DB->get_record('course_completions', ['userid' => $user1->id, 'course' => $c1->id]);
+        $this->assertEquals(userdate($past - 5), userdate($s1c1->timeenrolled));
 
-        // Get s2's completion record from c1.
-        $s2c1 = $DB->get_record('course_completions', ['userid' => $s2->id, 'course' => $c1->id]);
-        $this->assertEquals(userdate($now), userdate($s2c1->timeenrolled));
+        // All users should be mark started in course1.
+        $this->assertEquals($past - 2, $cc1[$user2->id]->timeenrolled);
+        $this->assertGreaterThanOrEqual($now, $cc1[$user4->id]->timeenrolled);
+        $this->assertLessThan($now + 60, $cc1[$user4->id]->timeenrolled);
+
+        // User1 should have a timeenrolled in course1 of $past-5 (due to multiple enrolments).
+        $this->assertEquals($past - 5, $cc1[$user1->id]->timeenrolled);
+
+        // User3 should have a timeenrolled in course1 of $past-2 (due to multiple enrolments).
+        $this->assertEquals($past - 2, $cc1[$user3->id]->timeenrolled);
+
+        // User 2 should not be mark as started in course2 at all (nothing current).
+        $this->assertEquals(false, isset($cc2[$user2->id]));
+
+        // Add some enrolment to course2 with different times to check for bugs.
+        $this->assertEquals($past - 10, $cc2[$user1->id]->timeenrolled);
+        $this->assertEquals($past - 15, $cc2[$user3->id]->timeenrolled);
+
     }
 }
